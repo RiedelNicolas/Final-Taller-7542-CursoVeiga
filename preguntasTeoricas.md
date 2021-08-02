@@ -543,7 +543,7 @@ Donde mediante distintos metodos (lock y unlock). Podemos tomar control/liberar 
 
 
 ### Que es una macro en C?
-##### [Pregunta del 1c 2018](https://github.com/Taller-de-Programacion/examenes/blob/master/2018.1/1.md).
+##### [Pregunta del 1c 2018](https://github.com/Taller-de-Programacion/examenes/blob/master/2018.1/4.md).
 <br>
 
 Una macro en C es un fragmento de codigo que recibe un alias, luego al utilizar este alias se reemplaza con el codigo que lo definimos. Esto ocurre en el proceso de precompilacion.
@@ -559,3 +559,124 @@ int main(){
 }
 ```
 
+
+### Explique que es y para que sirve un constructor MOVE en C++. Indique como se comporta el sistema si este no es definido por el desarrollador.
+##### [Pregunta del 1c 2018](https://github.com/Taller-de-Programacion/examenes/blob/master/2018.1/4.md).
+<br>
+C++ nos permite definir constructores por movimiento, que como bien explica su nombre nos indica nos permite "mover" una instancia de un objeto a otra.
+
+Este constructor normalmente se implementa en clases donde no tiene sentido crear "copias". Como por ejemplo sockets, etc.
+En el constructor por movimiento se mueven los atributos al objeto nuevo y se invalidan en el anterior. De esta forma el objeto viejo sigue existiendo y siendo valido, pero el valor de sus atributos ya no genera inconcistencias(si se llama a su destructor).
+Si el constructor por movimiento no es definido por el desarrollador, se incluye uno por defecto que realiza std::move para todos los atributos, pero no los invalida en el objeto viejo.
+
+
+### Que es un functor? Ejemplifique.
+##### [Pregunta del 1c 2018](https://github.com/Taller-de-Programacion/examenes/blob/master/2018.1/4.md).
+<br>
+
+Un functor es un objeto en c++ qe tiene sobrecargado el operador `()`.  Se puede pensar como una clase que funciona como una funcion.
+A lo largo de materia tambien solemos usarlo en el uso de threads.
+
+La ventaja que trae frente a una funcion convencional es son objetos, por lo tanto ademas de tener un comportamiento (como una funcion) tambien tienen un estado que puede ir variando en funcion de la ejecucion. Permite un codigo mucho mas flexible.
+
+Ejemplo :
+
+```cpp
+class Impresora{
+    public:
+        Impresora(std::string in):texto(in){}
+        void operator() () {
+            std::cout<<texto<<std::endl;
+        }
+    private:
+        std::string texto;
+}
+
+int main() {
+    Impresora impresora("Hola mundo");
+    impresora();
+    return 0;
+}
+```
+
+### ¿Qué ventaja ofrece un lock RAII frente al tradicional lock/unlock?
+##### [Pregunta del 1c 2018](https://github.com/Taller-de-Programacion/examenes/blob/master/2018.2/3.pdf).
+<br>
+
+La principal ventaja que trae es el poder de abstraccion, como usuario de la clase "protegida" nos olvidamos de tener que bloquear/liberar el mutex. 
+Ademas hace al codigo mas robusto, ya que se minimizan los errores debido a que el constructor bloquea el mutex y el destructor lo libera. 
+
+
+
+### ¿Qué valor arroja sizeof(int)? Justifique.
+##### [Pregunta del 1c 2018](https://github.com/Taller-de-Programacion/examenes/blob/master/2018.2/4.pdf).
+<br>
+
+Esta expresion devuelve el valor de un entero expresado en size_t.
+
+Este valor depende 100% la arquitectura y el compilador.
+Normalmente en arquitecturas de 16 bits devolvera 2 bytes, en 32 bits 4 bytes y en 64 puede valer tanto 8 o 4. (Si compilamos el programa con gcc el mismo vale 4.)
+
+La razon por la que en muchos sistemas de 64 bits sigue valiendo 4 bytes es exclusivamente por razones de retrocompatibilidad con recursos compartidos que tambien trabajan con estructuras de 32 bits.
+
+
+### ¿Qué características debe tener un compilador C para se considerado “portable”?
+##### [Pregunta del 1c 2019](https://github.com/Taller-de-Programacion/examenes/blob/master/2019.1/3.pdf).
+<br>
+(Este ejercicio me lo respondio a El Dipa)
+
+Un compilador C portable es aquel que soporta la sintaxis (y semantica) del lenguage C dado un estandar (ANSI, C11, C17) y que no agrega
+ninguna sintaxis adicional por fuera del estandar (de tal manera que el mismo codigo podria ser compilado por otro compilador). Esto incluye
+tambien el proceso de compilacion estandar (precompilacion, compilacion,
+linkeo)
+
+Ademas el compilador debe ofrecer una implementacion a la libreria estandar
+de C (lease, string.h, stdio.h, stdlib.h) respetando el estandar de C mencionado anteriormente tal que un programa compilado en un entorno pueda ser ejecutado en otro que tenga una libreria C compatible.
+
+
+### Explique qué es cada uno de los siguientes, haciendo referencia a su inicialización, su comportamiento y el area de memoria donde residen:
+1. Una variable global static.
+2. Una variable local static
+3. Un atributo de clase static.
+##### [Pregunta del 1c 2019](https://github.com/Taller-de-Programacion/examenes/blob/master/2019.1/4.pdf).
+<br>
+
+1. Una variable global static reside en el data segment del programa, solo puede ser accedido en el archivo donde fue definida. Se inicializa cuando comienza el programa y se libera cuando termina. En caso de no recibir inicializacion la porcion de memoria que le corresponde se carga en cero.
+2. Una variable local static tambien reside en el data segment del programa, pero solo puede ser accedida en la funcion donde fue definida. Al residir en el data segment su valor se preserva en los distintos llamados que se pueden realizar a la funcion. En caso de no especificar un valor de inicializacion, la misma comienza en 0 o null.
+3. Atributo de clase static, tambien reside en el data segment. Es un atributo comun a todas las instancias de la clase, en caso de no inicializarce tambien se inicia en 0.
+
+### Explique metodos virtuales puros y para que sirven : 
+##### [Pregunta del 1c 2019](https://github.com/Taller-de-Programacion/examenes/blob/master/2019.1/4.pdf).
+<br>
+Los metodos virtuales puros son aquellos que estan obligados a implementar las clases hijas. Son imprecindibles en interfaces y clases abstractas.
+
+```cpp
+class animal{
+    ...
+    public:
+        virtual void repirar() = 0; //Obligamos a que la derivada lo implemente, no se puede instanciar la clase animal.
+}
+```
+
+### Considere la estructurastruct ejemplo int a; char b;.¿Es verdad que sizeof(ejemplo)=sizeof(a)+sizeof(b)? Justifique. 
+##### [Pregunta del 2c 2019](https://github.com/Taller-de-Programacion/examenes/blob/master/2019.1/4.pdf).
+
+No, no se puede realizar esta informacion.
+El tamano de un struct no siempre es la suma de sus miembros. Esto es porque normalmente el compilador agrega un "padding" para evitar problemas de alineacion en memoria. 
+Diferentes compiladores pueden tener distintas soluciones a esto, y esto excede cualquier estandar de C.
+
+
+### ¿En qué consiste el patrón de diseño RAII? Ejemplifique. 
+##### [Pregunta del 2c 2019](https://github.com/Taller-de-Programacion/examenes/blob/master/2019.1/4.pdf).
+**Resource Acquisition Is Initialization**
+<br>
+
+El patron RAII se puede resumir en basicamente dos principios : 
+1. Inicializar una clase en su constructor y obtener alli todos los recursos(acceso a red, disco, memoria, generacion de hilos..) que requiera la misma. En caso de no poder obtener un recurso, tira una exception.
+2. Liberar los recursos adquiridos en el constructor en el destructor de la clase. Nunca arroja una excep.
+
+Esto trae una gran cantidad de beneficios, como mayor poder de abstraccion, garantizamos que si la clase logra ser instanciada la misma tiene acceso a los recursos que requiere, garantizamos que los recursos se liberen(gracias al destructor).
+
+C++ nos brinda una gran herramienta para esto como member initialization list, etc.
+
+**Por ejemplo se puede usar un clase que escriba en un archivo**
