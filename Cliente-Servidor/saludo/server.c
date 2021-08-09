@@ -63,7 +63,7 @@ int main (int argc, char* argv[]) {
     freeaddrinfo(result);
 
     if (rp == NULL) {
-        fprintf(perror,"Couldnt bind");
+        fprintf(stderr,"Couldnt bind\n");
         return -1;
     }
 
@@ -78,7 +78,7 @@ int main (int argc, char* argv[]) {
     
     char saludo[600];
     strcpy(saludo, "Hola cliente, soy el server");
-    s_send(s_fd, saludo, strlen(saludo));
+    s_send(peer, saludo, strlen(saludo)+1); // Se lo manda al peer
 
     shutdown(s_fd,SHUT_RDWR);
     shutdown(peer,SHUT_RDWR);
