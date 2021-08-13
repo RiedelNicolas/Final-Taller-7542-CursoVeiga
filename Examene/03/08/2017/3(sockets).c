@@ -8,20 +8,20 @@
 
 #define BUF_SIZE 500
 
-ssize_t s_recv(int fd, char* buffer, size_t len) {
-    ssize_t received = 0;
-    while (received < len) {
-        ssize_t current = recv(fd,buffer+received,len-received, 0);
+ssize_t s_send (int fd, char* buffer, size_t len) {
+    ssize_t sent = 0;
+    while (sent < len) {
+        ssize_t current = send(fd, buffer +sent,len-sent, MSG_NOSIGNAL);
         if (current == -1) {
-            fprintf(stderr, "Unable to receive data \n");
+            fprintf(stderr, "Unable to send data \n");
             return -1;
         }
-        if (current == 0) {
-            return received;
+        if (current == 0) { //Me cerraron del otro lado
+            return sent;
         }
-        received+=current;
+        sent+=current;
     }
-    return received;
+    return sent;
 }
 
 int main (int argc, char* argv[]) {
@@ -29,12 +29,7 @@ int main (int argc, char* argv[]) {
     struct addrinfo *result, *rp;
     int s_fd, peer;
 
-    if (argc != 2) {
-        fprintf(stderr,"Invocación incorrecta");
-        return -1;
-    }
-
-    const char* port = argv[1];
+    const char* port = "9000";
 
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;
@@ -67,13 +62,20 @@ int main (int argc, char* argv[]) {
         return -1;
     }
 
-    listen(s_fd, 1); // Cantidad que quiero escuchar.
-    peer = accept(s_fd,NULL, NULL); //Esta es bloqueante, hasta que llega uno.
-    if(peer == -1) {
-        fprintf(stderr,"Problemas con la conexión\n");
-        close(s_fd);
+    listen(s_fd, 10); // Cantidad que quiero escuchar.
+    int i = 0;
+    while (i<10){
+        peer = accept(s_fd,NULL, NULL); //Esta es bloqueante, hasta que llega uno.
+        if(peer == -1) {
+            fprintf(stderr,"Problemas con la conexión\n");
+            close(s_fd);
         return -1;
+        }
+        char buffer[600];
+        s_
+        i++;
     }
+    
     //aca es donde hay que hacer toda la bola?
     
     char saludo[600];
